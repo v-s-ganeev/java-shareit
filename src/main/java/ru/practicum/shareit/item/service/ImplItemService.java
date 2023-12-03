@@ -40,8 +40,9 @@ public class ImplItemService implements ItemService {
         userStorage.getUser(userId);
         if (itemStorage.getItem(itemId).getOwnerId() != userId)
             throw new NotFoundException("Вещь может редактировать только ее владелец");
-        itemDto.setId(itemId);
-        return ItemMapper.toItemDto(itemStorage.editItem(ItemMapper.toItem(itemDto)));
+        Item item = ItemMapper.toItem(itemDto);
+        item.setId(itemId);
+        return ItemMapper.toItemDto(itemStorage.editItem(item));
     }
 
     @Override
@@ -51,14 +52,11 @@ public class ImplItemService implements ItemService {
 
     @Override
     public List<ItemDto> getUserItems(Integer userId) {
-        List<ItemDto> userItems = new ArrayList<>();
-        List<Item> items = itemStorage.getAllItem();
-        for (Item item : items) {
-            if (item.getOwnerId() == userId) {
-                userItems.add(ItemMapper.toItemDto(item));
-            }
-        }
-        return userItems;
+        return itemStorage.getAllItem()
+                .stream()
+                .filter(item -> item.getOwnerId() == userId)
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
@@ -20,9 +19,6 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Item addItem(Item item) {
-        if (item.getName() == null) throw new ValidationException("Поле Name должно быть заполнено");
-        if (item.getDescription() == null) throw new ValidationException("Поле Description должно быть заполнено");
-        if (item.getAvailable() == null) throw new ValidationException("Поле Available должно быть заполнено");
         item.setId(++id);
         items.put(item.getId(), item);
         return item;
@@ -52,10 +48,6 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public List<Item> getAllItem() {
-        List<Item> allItems = new ArrayList<>();
-        for (Integer itemId : items.keySet()) {
-            allItems.add(items.get(itemId));
-        }
-        return allItems;
+        return new ArrayList<>(items.values());
     }
 }

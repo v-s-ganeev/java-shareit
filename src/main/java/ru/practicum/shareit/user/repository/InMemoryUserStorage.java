@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.User;
 
 import java.util.ArrayList;
@@ -21,9 +20,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        if (user.getId() != null) {
-            throw new ValidationException("Поле id не пустое");
-        }
         if (users.values().stream().anyMatch(checkedUser -> checkedUser.getEmail().equals(user.getEmail()))) {
             throw new DuplicateEmailException("Пользователь с таким email уже существует");
         }

@@ -21,8 +21,11 @@ public class ImplUserService implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        User user = checkUser(UserMapper.toUser(userDto));
-        userStorage.addUser(user);
+        if (userDto.getId() != null) {
+            throw new ValidationException("Поле id не пустое");
+        }
+        checkUser(userDto);
+        User user = userStorage.addUser(UserMapper.toUser(userDto));
         return UserMapper.toUserDto(user);
     }
 
@@ -47,14 +50,13 @@ public class ImplUserService implements UserService {
                 .collect(Collectors.toList());
     }
 
-    private User checkUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
+    private void checkUser(UserDto userDto) {
+        if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
             throw new ValidationException("email не может быть пустым");
         }
-        if (!user.getEmail().contains("@")) throw new ValidationException("Некорректный email");
-        if (user.getName() == null || user.getName().isBlank()) {
+        if (!userDto.getEmail().contains("@")) throw new ValidationException("Некорректный email");
+        if (userDto.getName() == null || userDto.getName().isBlank()) {
             throw new ValidationException("login не может быть пустым");
         }
-        return user;
     }
 }
