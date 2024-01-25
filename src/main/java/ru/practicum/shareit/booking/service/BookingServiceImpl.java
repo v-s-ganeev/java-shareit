@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -28,8 +29,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDtoOutput addBooking(BookingDtoInput bookingDtoInput, Integer bookerId) {
-        Booking booking = bookingMapper.toBooking(bookingDtoInput, bookerId);
-        checkBooking(booking);
+        User booker = userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException("Пользователь с id=" + bookerId + " не найден"));
+        Item item = itemRepository.findById(bookingDtoInput.getItemId()).orElseThrow(() -> new NotFoundException("Вещь с id=" + bookingDtoInput.getItemId() + " не найдена"));
+        checkBooking(bookingDtoInput, bookerId, item);
+        Booking booking = bookingMapper.toBooking(bookingDtoInput, booker, item);
         return bookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
@@ -115,14 +118,14 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toBookingDto(bookings);
     }
 
-    private void checkBooking(Booking booking) {
-        if (booking.getItem().getOwner().getId() == booking.getBooker().getId())
+    private void checkBooking(BookingDtoInput bookingDtoInput, Integer bookerId, Item item) {
+        if (item.getOwner().getId() == bookerId)
             throw new NotFoundException("Нельзя забронировать собственную вещь");
-        if (!booking.getItem().getAvailable())
+        if (!item.getAvailable())
             throw new ValidationException("Владелец вещи закрыл ее для броинрования.");
-        if (booking.getStart().isBefore(LocalDateTime.now()))
+        if (bookingDtoInput.getStart().isBefore(LocalDateTime.now()))
             throw new ValidationException("Дата начала бронирования не может быть в прошлом");
-        if (booking.getStart().isAfter(booking.getEnd()) || booking.getStart().isEqual(booking.getEnd()))
+        if (bookingDtoInput.getStart().isAfter(bookingDtoInput.getEnd()) || bookingDtoInput.getStart().isEqual(bookingDtoInput.getEnd()))
             throw new ValidationException("Дата начала бронирования должна быть раньше времени окончания бронирования.");
     }
 }

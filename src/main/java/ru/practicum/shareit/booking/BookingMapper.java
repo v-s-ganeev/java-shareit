@@ -7,9 +7,10 @@ import ru.practicum.shareit.booking.dto.BookingDtoOutput;
 import ru.practicum.shareit.booking.dto.BookingDtoOutputToOwner;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -19,9 +20,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class BookingMapper {
-
-    private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
 
     public BookingDtoOutput toBookingDto(Booking booking) {
         return BookingDtoOutput
@@ -57,13 +55,13 @@ public class BookingMapper {
                 .build();
     }
 
-    public Booking toBooking(BookingDtoInput bookingDtoInput, Integer bookerId) {
+    public Booking toBooking(BookingDtoInput bookingDtoInput, User booker, Item item) {
         return Booking
                 .builder()
                 .start(bookingDtoInput.getStart())
                 .end(bookingDtoInput.getEnd())
-                .item(itemRepository.findById(bookingDtoInput.getItemId()).orElseThrow(() -> new NotFoundException("Вещь с id=" + bookingDtoInput.getItemId() + " не найдена")))
-                .booker(userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException("Пользователь с id=" + bookerId + " не найден")))
+                .item(item)
+                .booker(booker)
                 .status(BookingStatus.WAITING)
                 .build();
     }

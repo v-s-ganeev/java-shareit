@@ -47,12 +47,12 @@ public class ImplItemService implements ItemService {
 
     @Override
     public CommentDto addComment(CommentDto commentDto, Integer userId, Integer itemId) {
-        Comment comment = CommentMapper.toComment(commentDto);
         if (bookingRepository.findFirstByItemIdAndBooker_IdAndStatusNotLikeAndEndIsBeforeOrderByStartDesc(itemId, userId, BookingStatus.REJECTED, LocalDateTime.now()) == null) {
             throw new ValidationException("Оставлять отзыв можно только после окончания аренды вещи.");
         }
         if (commentDto.getText().isBlank() || commentDto.getText() == null)
             throw new ValidationException("Комментарий не может быть пустой");
+        Comment comment = CommentMapper.toComment(commentDto);
         comment.setAuthor(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден")));
         comment.setItem(itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь с id=" + itemId + " не найдена")));
         return CommentMapper.toCommentDto(commentRepository.save(comment));
