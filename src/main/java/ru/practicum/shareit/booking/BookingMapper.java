@@ -9,10 +9,8 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingMapper {
 
-    public BookingDtoOutput toBookingDto(Booking booking) {
+    public static BookingDtoOutput toBookingDto(Booking booking) {
         return BookingDtoOutput
                 .builder()
                 .id(booking.getId())
@@ -33,7 +31,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public BookingDtoOutputToOwner toBookingDtoToOwner(Booking booking) {
+    public static BookingDtoOutputToOwner toBookingDtoToOwner(Booking booking) {
         return BookingDtoOutputToOwner
                 .builder()
                 .id(booking.getId())
@@ -43,7 +41,16 @@ public class BookingMapper {
                 .build();
     }
 
-    public Booking toBooking(BookingDtoOutput bookingDtoOutput) {
+    public static BookingDtoInput toBookingDtoInput(Booking booking) {
+        return BookingDtoInput
+                .builder()
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .itemId(booking.getItem().getId())
+                .build();
+    }
+
+    public static Booking toBooking(BookingDtoOutput bookingDtoOutput) {
         return Booking
                 .builder()
                 .id(bookingDtoOutput.getId())
@@ -55,7 +62,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public Booking toBooking(BookingDtoInput bookingDtoInput, User booker, Item item) {
+    public static Booking toBooking(BookingDtoInput bookingDtoInput, User booker, Item item) {
         return Booking
                 .builder()
                 .start(bookingDtoInput.getStart())
@@ -66,9 +73,10 @@ public class BookingMapper {
                 .build();
     }
 
-    public List<BookingDtoOutput> toBookingDto(List<Booking> bookings) {
+    public static List<BookingDtoOutput> toBookingDto(List<Booking> bookings) {
         return bookings.stream()
-                .map(this::toBookingDto)
+                .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
+
 }

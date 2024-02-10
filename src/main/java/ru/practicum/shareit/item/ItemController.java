@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
@@ -21,13 +23,15 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId) {
-        return itemService.getUserItems(userId);
+    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam(value = "from", defaultValue = "0") Integer from, @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        if (from < 0 || size < 0) throw new ValidationException("Параметры from и size не могут быть меньше 0");
+        return itemService.getUserItems(userId, PageRequest.of(from / size, size));
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getNeedItems(String text) {
-        return itemService.getNeedItems(text);
+    public List<ItemDto> getNeedItems(String text, @RequestParam(value = "from", defaultValue = "0") Integer from, @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        if (from < 0 || size < 0) throw new ValidationException("Параметры from и size не могут быть меньше 0");
+        return itemService.getNeedItems(text, PageRequest.of(from / size, size));
     }
 
     @PostMapping
