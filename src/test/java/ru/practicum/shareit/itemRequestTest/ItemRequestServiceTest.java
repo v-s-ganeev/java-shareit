@@ -68,7 +68,7 @@ public class ItemRequestServiceTest {
         assertNotNull(itemRequests);
         assertEquals(itemRequests.size(), 1);
         verify(itemRequestRepository, times(1)).findAllByRequestorIdOrderByCreated(anyInt());
-        verify(itemRepository, times(1)).findAllByRequestId(anyInt());
+        verify(itemRepository, times(1)).getAllItemsByRequestsId(anyList());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class ItemRequestServiceTest {
         assertNotNull(itemRequests);
         assertEquals(itemRequests.size(), 1);
         verify(itemRequestRepository, times(1)).findAllByRequestorIdIsNotOrderByCreated(anyInt(), any(PageRequest.class));
-        verify(itemRepository, times(1)).findAllByRequestId(anyInt());
+        verify(itemRepository, times(1)).getAllItemsByRequestsId(anyList());
     }
 
     @Test

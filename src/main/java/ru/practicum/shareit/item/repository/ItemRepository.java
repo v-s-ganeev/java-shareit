@@ -19,4 +19,8 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
 
     List<Item> findAllByRequestId(Integer requestId);
 
+    @Query("SELECT i " +
+            "FROM Item i " +
+            "WHERE i.requestId IN ?1")
+    List<Item> getAllItemsByRequestsId(List<Integer> requestsId);
 }
