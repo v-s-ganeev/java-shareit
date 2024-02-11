@@ -1,10 +1,12 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingDtoOutput;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.ValidationException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -32,12 +34,14 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDtoOutput> getBookerBookings(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam(name = "state", defaultValue = "ALL") String state) {
-        return bookingService.getBookerBookings(userId, state);
+    public List<BookingDtoOutput> getBookerBookings(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam(name = "state", defaultValue = "ALL") String state, @RequestParam(value = "from", defaultValue = "0") Integer from, @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        if (from < 0 || size < 0) throw new ValidationException("Параметры from и size не могут быть меньше 0");
+        return bookingService.getBookerBookings(userId, state, PageRequest.of(from / size, size));
     }
 
     @GetMapping("/owner")
-    public List<BookingDtoOutput> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam(name = "state", defaultValue = "ALL") String state) {
-        return bookingService.getOwnerBookings(userId, state);
+    public List<BookingDtoOutput> getOwnerBookings(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam(name = "state", defaultValue = "ALL") String state, @RequestParam(value = "from", defaultValue = "0") Integer from, @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        if (from < 0 || size < 0) throw new ValidationException("Параметры from и size не могут быть меньше 0");
+        return bookingService.getOwnerBookings(userId, state, PageRequest.of(from / size, size));
     }
 }

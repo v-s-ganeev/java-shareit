@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -31,7 +32,6 @@ public class ImplItemService implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
-    private final BookingMapper bookingMapper;
     private final CommentRepository commentRepository;
 
     @Override
@@ -82,8 +82,8 @@ public class ImplItemService implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getUserItems(Integer userId) {
-        return itemRepository.getItemsByOwnerId(userId)
+    public List<ItemDto> getUserItems(Integer userId, PageRequest pageRequest) {
+        return itemRepository.getItemsByOwnerId(userId, pageRequest)
                 .stream()
                 .map(ItemMapper::toItemDto)
                 .map(this::checkLastAndNestBookings)
@@ -92,9 +92,9 @@ public class ImplItemService implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getNeedItems(String searchString) {
+    public List<ItemDto> getNeedItems(String searchString, PageRequest pageRequest) {
         if (searchString.isBlank()) return new ArrayList<>();
-        return itemRepository.searchByText(searchString)
+        return itemRepository.searchByText(searchString, pageRequest)
                 .stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -103,8 +103,8 @@ public class ImplItemService implements ItemService {
     private ItemDto checkLastAndNestBookings(ItemDto itemDto) {
         Booking last = bookingRepository.findFirstByItemIdAndStatusNotLikeAndStartIsBeforeOrStartEqualsOrderByStartDesc(itemDto.getId(), BookingStatus.REJECTED, LocalDateTime.now(), LocalDateTime.now());
         Booking next = bookingRepository.findFirstByItemIdAndStatusNotLikeAndStartIsAfterOrderByStart(itemDto.getId(), BookingStatus.REJECTED, LocalDateTime.now());
-        if (last != null) itemDto.setLastBooking(bookingMapper.toBookingDtoToOwner(last));
-        if (next != null) itemDto.setNextBooking(bookingMapper.toBookingDtoToOwner(next));
+        if (last != null) itemDto.setLastBooking(BookingMapper.toBookingDtoToOwner(last));
+        if (next != null) itemDto.setNextBooking(BookingMapper.toBookingDtoToOwner(next));
         return itemDto;
     }
 

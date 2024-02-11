@@ -17,4 +17,5 @@ public class ItemDtoForOwner {
     private Boolean available;
     private BookingDtoOutputToOwner lastBooking;
     private BookingDtoOutputToOwner nextBooking;
+    private Integer requestId;
 }
