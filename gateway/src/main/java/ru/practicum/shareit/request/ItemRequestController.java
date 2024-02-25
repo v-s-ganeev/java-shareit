@@ -15,7 +15,6 @@ import javax.validation.constraints.PositiveOrZero;
 @Controller
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
-@Slf4j
 @Validated
 public class ItemRequestController {
     private final ItemRequestClient itemRequestClient;

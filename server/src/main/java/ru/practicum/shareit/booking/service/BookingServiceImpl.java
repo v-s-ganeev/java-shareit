@@ -123,9 +123,5 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Нельзя забронировать собственную вещь");
         if (!item.getAvailable())
             throw new ValidationException("Владелец вещи закрыл ее для броинрования.");
-        if (bookingDtoInput.getStart().isBefore(LocalDateTime.now()))
-            throw new ValidationException("Дата начала бронирования не может быть в прошлом");
-        if (bookingDtoInput.getStart().isAfter(bookingDtoInput.getEnd()) || bookingDtoInput.getStart().isEqual(bookingDtoInput.getEnd()))
-            throw new ValidationException("Дата начала бронирования должна быть раньше времени окончания бронирования.");
     }
 }

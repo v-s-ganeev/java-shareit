@@ -36,9 +36,6 @@ public class ImplItemService implements ItemService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto, Integer userId) {
-        if (itemDto.getName() == null || itemDto.getName().isBlank() || itemDto.getDescription() == null || itemDto.getDescription().isBlank() || itemDto.getAvailable() == null) {
-            throw new ValidationException("Поля Name, Description и Available обязательны к заполнению");
-        }
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
@@ -50,8 +47,6 @@ public class ImplItemService implements ItemService {
         if (bookingRepository.findFirstByItemIdAndBooker_IdAndStatusNotLikeAndEndIsBeforeOrderByStartDesc(itemId, userId, BookingStatus.REJECTED, LocalDateTime.now()) == null) {
             throw new ValidationException("Оставлять отзыв можно только после окончания аренды вещи.");
         }
-        if (commentDto.getText().isBlank() || commentDto.getText() == null)
-            throw new ValidationException("Комментарий не может быть пустой");
         Comment comment = CommentMapper.toComment(commentDto);
         comment.setAuthor(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден")));
         comment.setItem(itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь с id=" + itemId + " не найдена")));
